@@ -1,6 +1,6 @@
 {
   "name": "@pomin/ui",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Kit de UI do Grupo Pomin — o padrão do PominStart como biblioteca: componentes, tokens e preset do Tailwind.",
   "license": "UNLICENSED",
   "type": "module",
@@ -14,24 +14,29 @@
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
-      "import": "./dist/index.js"
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
     },
     "./styles.css": "./dist/styles.css",
     "./preset": {
       "types": "./dist/preset.d.ts",
-      "import": "./dist/preset.js"
+      "import": "./dist/preset.js",
+      "require": "./dist/preset.cjs"
     },
     "./lib/utils": {
       "types": "./dist/lib/utils.d.ts",
-      "import": "./dist/lib/utils.js"
+      "import": "./dist/lib/utils.js",
+      "require": "./dist/lib/utils.cjs"
     },
     "./hooks/*": {
       "types": "./dist/hooks/*.d.ts",
-      "import": "./dist/hooks/*.js"
+      "import": "./dist/hooks/*.js",
+      "require": "./dist/hooks/*.cjs"
     },
     "./*": {
       "types": "./dist/components/ui/*.d.ts",
-      "import": "./dist/components/ui/*.js"
+      "import": "./dist/components/ui/*.js",
+      "require": "./dist/components/ui/*.cjs"
     }
   },
   "scripts": {
