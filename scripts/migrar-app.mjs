@@ -94,11 +94,28 @@ for (const f of arquivos) {
 }
 console.log(`imports reescritos: ${tocados} arquivo(s)`);
 
-// 3. cn vindo do kit
+// 3. cn vindo do kit — trocando SÓ a definição do cn.
+//
+// Sobrescrever o arquivo inteiro parecia inofensivo (todo utils.ts começa igual)
+// até apagar o formatBytes do pomindrive e o sha256Hex do pominchurch, que
+// moram no mesmo arquivo. O build só reclamou depois. Agora é cirúrgico: se a
+// definição não for exatamente a esperada, o arquivo fica intacto e o script avisa.
+const DEF_CN = /import\s*\{\s*clsx\s*,\s*type ClassValue\s*\}\s*from\s*"clsx";\s*\nimport\s*\{\s*twMerge\s*\}\s*from\s*"tailwind-merge";\s*\n+export function cn\(\.\.\.inputs: ClassValue\[\]\)\s*\{\s*\n\s*return twMerge\(clsx\(inputs\)\);\s*\n\}\s*\n/;
+
 const utils = join(src, "lib/utils.ts");
-if (existsSync(utils) && !dry) {
-  writeFileSync(utils, '// O `cn` mora no kit: uma implementação só para todos os apps.\nexport { cn } from "@pomin/ui/lib/utils";\n');
-  console.log("src/lib/utils.ts reexporta o kit");
+if (existsSync(utils)) {
+  const atual = readFileSync(utils, "utf8");
+  if (DEF_CN.test(atual)) {
+    const novo = atual.replace(
+      DEF_CN,
+      '// O `cn` mora no kit: uma implementação só para todos os apps.\nexport { cn } from "@pomin/ui/lib/utils";\n\n',
+    );
+    if (!dry) writeFileSync(utils, `${novo.trimEnd()}\n`);
+    const proprios = novo.split("\n").filter((l) => l.startsWith("export ") && !l.includes("@pomin/ui")).length;
+    console.log(`src/lib/utils.ts: cn vem do kit${proprios ? `, ${proprios} export(s) do app preservados` : ""}`);
+  } else {
+    console.log("src/lib/utils.ts: não reconheci a definição do cn — deixei intacto, confira à mão");
+  }
 }
 
 // 4. remove a cópia local
