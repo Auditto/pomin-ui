@@ -1,0 +1,62 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  verificar:
+    name: Typecheck, build e dist em dia
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - run: npm ci
+
+      - name: Typecheck
+        run: npm run typecheck
+
+      - name: Build
+        run: npm run build
+
+      # O dist/ é versionado para o `npm i github:...` funcionar sem build na
+      # máquina de quem instala. O preço é este: dá para mexer no src e esquecer
+      # de rebuildar, e aí os apps continuam recebendo a versão velha sem
+      # ninguém perceber. Este passo é o que impede isso.
+      - name: dist/ corresponde ao src?
+        run: |
+          if [ -n "$(git status --porcelain dist)" ]; then
+            echo "::error::O dist/ commitado não corresponde ao src. Rode 'npm run build' e commite o dist."
+            git status --porcelain dist
+            git diff --stat dist | tail -20
+            exit 1
+          fi
+          echo "dist/ em dia com o src."
+
+      - name: Storybook compila
+        run: npm run build:storybook
+
+      # O barril é gerado; se alguém adicionar um componente e não rodar o
+      # gerador, ele fica de fora do `import { X } from "@pomin/ui"` e só
+      # aparece no app que tentou importar.
+      - name: Barril está gerado?
+        run: |
+          node scripts/gerar-barril.mjs
+          if [ -n "$(git status --porcelain src/index.ts)" ]; then
+            echo "::error::src/index.ts está desatualizado. Rode 'node scripts/gerar-barril.mjs' e commite."
+            git diff src/index.ts
+            exit 1
+          fi
+          echo "Barril em dia."

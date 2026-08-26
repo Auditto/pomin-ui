@@ -13,3 +13,12 @@ Primeira versão: o kit do PominStart extraído como biblioteca.
 - Pacote passa a sair em ESM **e** CJS: o `tailwind.config.ts` dos apps é lido
   pelo `jiti`, que resolve em CommonJS e não enxergava um pacote só-ESM
   (`Cannot find module @pomin/ui/preset` no build).
+
+## v0.2.0
+
+- `@pomin/ui/layout`: AppShell e AppSidebar saem dos apps e viram parte do kit.
+  O menu, a marca e os botões do header entram por prop; permissão continua
+  sendo do app (`hidden` na seção).
+- Storybook: tokens, Button e o AppShell, com alternador de tema.
+- CI com typecheck, build e dois guardas: `dist/` em dia com o `src` e barril
+  gerado. Mais um workflow que compila os apps-piloto contra o branch.

@@ -11,7 +11,8 @@ import { defineConfig } from "tsup";
  * separadamente, então quem importa dois componentes não leva os 73.
  */
 export default defineConfig({
-  entry: ["src/**/*.ts", "src/**/*.tsx"],
+  // os stories documentam o kit, não fazem parte dele
+  entry: ["src/**/*.ts", "src/**/*.tsx", "!src/stories/**"],
   format: ["esm", "cjs"],
   bundle: false,
   dts: true,

@@ -1,0 +1,4 @@
+/* O Storybook precisa da folha PROCESSADA pelo Tailwind (as classes utilitárias
+   são geradas a partir do que os stories usam), então aqui entram as diretivas
+   e o CSS do kit — não o dist/styles.css pronto. */
+@import "../src/styles/pomin-ui.css";

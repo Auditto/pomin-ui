@@ -1,0 +1,59 @@
+name: Apps-piloto
+
+# Um erro no kit não aparece aqui — aparece no próximo app que atualizar a tag.
+# Este workflow puxa os apps que já consomem o kit e compila cada um contra o
+# código deste branch, para o estrago aparecer no PR e não em produção.
+#
+# Roda sob demanda para não gastar minutos em todo push; a chamada natural é
+# antes de cortar uma tag nova.
+
+on:
+  workflow_dispatch:
+  pull_request:
+    types: [labeled]
+
+jobs:
+  compilar:
+    if: github.event_name == 'workflow_dispatch' || github.event.label.name == 'testar-apps'
+    name: ${{ matrix.app }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - { app: pominpdv, dir: web }
+          - { app: pominbank, dir: web }
+          - { app: pomindrive, dir: web }
+          - { app: pominstart, dir: . }
+          - { app: pominmail, dir: . }
+          - { app: pominchurch, dir: . }
+
+    steps:
+      - name: Baixa o kit (este branch)
+        uses: actions/checkout@v4
+        with:
+          path: kit
+
+      - name: Baixa o app
+        uses: actions/checkout@v4
+        with:
+          repository: Auditto/${{ matrix.app }}
+          token: ${{ secrets.APPS_READ_TOKEN }}
+          path: app
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Instala o app apontando para o kit deste branch
+        working-directory: app/${{ matrix.dir }}
+        run: |
+          npm install --no-audit --no-fund
+          # troca a dependência publicada pelo código local, para o build
+          # exercitar o que está no PR e não a última tag
+          npm install "file:${GITHUB_WORKSPACE}/kit" --no-audit --no-fund
+
+      - name: Build do app
+        working-directory: app/${{ matrix.dir }}
+        run: npm run build

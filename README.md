@@ -63,6 +63,67 @@ import { Button } from "@pomin/ui/button";       // subcaminho (recomendado)
 O subcaminho é o recomendado porque carrega só aquele módulo — quem importa
 dois componentes não leva os 73 — e porque torna a migração um find/replace.
 
+## O shell da aplicação
+
+O maior pedaço duplicado depois dos componentes era o layout: cada app copiava
+~400 linhas de sidebar retrátil, alfinete, header de vidro e breadcrumb. Agora:
+
+```tsx
+import { AppShell } from "@pomin/ui/layout";
+import { Store, LayoutDashboard, Package } from "lucide-react";
+
+<AppShell
+  brandShort="PDV"
+  brand={{ name: <>Pomin<span className="text-primary">PDV</span></>, subtitle: "retaguarda", icon: Store }}
+  sections={[
+    { items: [{ title: "Dashboard", url: "/dashboard", icon: LayoutDashboard }] },
+    { label: "Cadastros", items: [{ title: "Produtos", url: "/produtos", icon: Package }] },
+    // permissão é do app: o kit não sabe o que é "admin"
+    { label: "Administração", hidden: !ehAdmin, items: [...] },
+  ]}
+  user={{ name, email, onLogout }}
+  routeLabels={{ produtos: "Produtos" }}
+  storageKey="pdv"
+  headerActions={<ThemeToggle />}
+>
+  {children}
+</AppShell>
+```
+
+O que vem de graça: sidebar que expande no hover e fixa no alfinete (guardado
+por app no localStorage), breadcrumb montado da URL — com UUID virando
+"Detalhe" —, área de conteúdo com rolagem própria e animação de troca de rota.
+
+`@pomin/ui/layout` é o único subcaminho que usa `react-router-dom` (peer
+**opcional**). Ele fica fora do barril de propósito: um app sem router nunca
+resolve esse import.
+
+## Storybook
+
+```bash
+npm run storybook          # localhost:6006
+npm run build:storybook
+```
+
+É onde o padrão se vê: paleta e tokens, as variantes do Button, o AppShell
+inteiro. Tem alternador de tema claro/escuro na barra — regressão de tema é o
+tipo de coisa que só aparece quando alguém troca.
+
+## CI
+
+Dois workflows:
+
+- **CI** (todo push/PR): typecheck, build, Storybook — e dois guardas que
+  existem por causa de escolhas deste pacote. O `dist/` é versionado para o
+  `npm i github:` funcionar sem build; o preço é dar para mexer no `src` e
+  esquecer de rebuildar, então a CI recusa um `dist` diferente do `src`. O
+  mesmo para o barril gerado.
+- **Apps-piloto** (sob demanda, ou com o label `testar-apps` no PR): baixa os
+  apps que já consomem o kit e compila cada um contra o código do branch. Um
+  erro aqui não aparece aqui — aparece no próximo app que atualizar a tag; este
+  workflow traz isso para o PR. Chamada natural: antes de cortar tag.
+
+
 ## Quando o app precisa fugir do padrão
 
 Sobrescrever **um token**: redeclare a variável depois do import.
