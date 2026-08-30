@@ -22,3 +22,10 @@ Primeira versão: o kit do PominStart extraído como biblioteca.
 - Storybook: tokens, Button e o AppShell, com alternador de tema.
 - CI com typecheck, build e dois guardas: `dist/` em dia com o `src` e barril
   gerado. Mais um workflow que compila os apps-piloto contra o branch.
+
+## v0.2.1
+
+- Corrige o respiro da área de conteúdo. A regra herdada do pominstart só dava
+  padding a um filho com classe `max-w-*` — contrato implícito que nenhuma tela
+  nova cumpria, e o conteúdo encostava nas bordas. Agora o padding é do
+  container e sai quando a página traz o próprio wrapper (sem dobrar).

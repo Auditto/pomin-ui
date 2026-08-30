@@ -244,6 +244,30 @@
 }
 
 @layer components {
+  /*
+   * Respiro da área de conteúdo.
+   *
+   * A regra abaixo (`> [class*="max-w-"]`) veio do pominstart, onde toda página
+   * é embrulhada num container `max-w-*` — ela neutraliza o max-width e põe o
+   * padding NESSE filho. O problema é que isso é um contrato implícito: uma
+   * página sem esse wrapper não recebia padding nenhum e encostava nas bordas.
+   *
+   * Agora o padrão é o inverso: o padding é do container, e só sai quando a
+   * página traz o próprio wrapper — aí ele fica com o padding, sem dobrar.
+   */
+  .start-content { padding: 1rem; }
+
+  @media (min-width: 640px) {
+    .start-content { padding: 2rem; }
+  }
+
+  @media (min-width: 1024px) {
+    .start-content { padding: 2.5rem; }
+  }
+
+  /* Página com wrapper próprio: o padding é dele, não do container. */
+  .start-content:has(> [class*="max-w-"]) { padding: 0; }
+
   .start-content > [class*="max-w-"] {
     max-width: none !important;
     padding: 1rem !important;
