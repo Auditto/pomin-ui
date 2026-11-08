@@ -22,7 +22,6 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - { app: pominpdv, dir: web }
           - { app: pominbank, dir: web }
           - { app: pomindrive, dir: web }
           - { app: pominstart, dir: . }
